@@ -1,8 +1,61 @@
+name: Simple CI/CD Pipeline of sahil thakur
+
+on:
+  push:
+    branches: [master, production]
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run build step
+        run: |
+          mkdir -p output
+          echo "Build completed on ${{ matrix.os }}" > output/build_info.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: output/
+
+  test:
+    name: Test build output
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-ubuntu-latest
+          path: ./artifact
+
+      - name: Dummy test step
+        run: |
+          echo "Testing artifact contents..."
+          cat ./artifact/build_info.txt
+
   release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs: [build, test]
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+    if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/production')
 
     steps:
       - name: Checkout code
@@ -29,7 +82,7 @@
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: release
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+    if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/heads/production')
 
     steps:
       - name: Checkout code
