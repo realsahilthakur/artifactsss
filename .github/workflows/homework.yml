@@ -81,16 +81,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy:
-    name: Deploy to Production (production only)
-    runs-on: ubuntu-latest
-    needs: [build, test]
-    if: github.ref == 'refs/heads/production'
+deploy:
+  name: Deploy to Production (production only)
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/production'
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Deploy dummy
-        run: |
-          echo "Deploying production version... (simulation)"
+    - name: Deploy dummy
+      run: |
+        echo "Deploying production version... (simulation)"
