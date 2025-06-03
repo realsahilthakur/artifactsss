@@ -84,7 +84,7 @@ jobs:
 deploy:
   name: Deploy to Production (production only)
   runs-on: ubuntu-latest
-  if: github.ref == 'refs/heads/production'
+  if: github.ref == 'refs/heads/Preoduction'
 
   steps:
     - name: Checkout code
